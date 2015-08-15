@@ -27,7 +27,7 @@ namespace smup {
 
 struct Constants {
 	static constexpr uint8_t Flag = 0xaa;
-	static constexpr uint8_t Escape = 0xaa;
+	static constexpr uint8_t Escape = 0x1b;
 
 	enum class PacketType : uint8_t {
 		Ping          = 0x0,
