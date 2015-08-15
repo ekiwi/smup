@@ -30,9 +30,20 @@
 
 namespace smup {
 
-struct ArrayLength {
-	uint16_t length;	///< number of values, NOT bytes
+
+template<typename T>
+struct Buffer {
+	T* data;
+	size_t count;
 };
+
+template<typename T, size_t N>
+inline Buffer<T> buffer(T (&data)[N]) {
+	Buffer<T> b;
+	b.data = data;
+	b.count = N;
+	return b;
+}
 
 class Stream : private Constants {
 
@@ -40,14 +51,13 @@ public:
 	enum class Error {
 		None,
 		StringTooLong,
-		NoArrayLengthSet,
+		BufferTooLong,
 	};
 
 	Stream(xpcc::IODevice& device) :
 		device(device),
 		connected(true),	// TODO: connected should be false until a connection is established
-		lastError(Error::None),
-		arrayLength(0)
+		lastError(Error::None)
 		{}
 
 
@@ -103,19 +113,13 @@ public:
 		return (*this);
 	}
 
-	Stream& operator << (const ArrayLength& arrayLength) {
-		this->arrayLength = arrayLength.length;
-		return (*this);
-	}
-
-	Stream& operator << (const uint8_t* v) {
-		if(!(this->arrayLength > 0)) {
-			this->error(Error::NoArrayLengthSet);
+	Stream& operator << (const Buffer<uint8_t>& b) {
+		if(b.count > xpcc::ArithmeticTraits<uint16_t>::max) {
+			this->error(Error::BufferTooLong);
 		} else {
 			this->start(PacketType::UserData, DataType::Bytes);
-			this->send(this->arrayLength);
-			this->send(v, this->arrayLength);
-			this->arrayLength = 0;
+			this->send(static_cast<uint16_t>(b.count));
+			this->send(b.data, b.count);
 			this->end();
 		}
 		return (*this);
@@ -132,8 +136,6 @@ private:
 	bool connected;
 	///< contains the last error detected
 	Error lastError;
-	///< number of values that the next array is supposed to contain
-	uint16_t arrayLength;
 
 private:
 	static inline constexpr DataType getDataType(bool) {
@@ -195,15 +197,6 @@ private:
 		this->send(reinterpret_cast<uint8_t*>(&data), sizeof(data));
 	}
 };	// class Stream
-
-/// the next pointer to a scalar type will be interpreted
-/// as an array that contains numberOfValues values
-inline ArrayLength
-array(uint16_t numberOfValues) {
-	ArrayLength len;
-	len.length = numberOfValues;
-	return len;
-}
 
 }	// namespace smup
 
