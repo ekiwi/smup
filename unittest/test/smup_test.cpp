@@ -42,6 +42,25 @@ SmupTest::testBasicOutput()
 
 	io << "Hello";
 	TEST_ASSERT_SENT_BYTES(0xaa, 0x28, 5, 0, 'H', 'e', 'l', 'l', 'o');
+	ioDevice.reset();
 
-	TEST_ASSERT_EQUALS(2 + 2, 4);
+	io << static_cast<int32_t>(-538290);
+	TEST_ASSERT_SENT_BYTES(0xaa, 0x22, 78, 201, 247, 255);
+	ioDevice.reset();
+
+	// test escaping 2853284379 == 0xaa11aa1b
+	// 0xaa is the current escape parameter
+	io << static_cast<uint32_t>(2853284379);
+	TEST_ASSERT_SENT_BYTES(0xaa, 0x23, 0x1b, 0x1b, 0x1b, 0xaa, 0x11, 0x1b, 0xaa);
+	ioDevice.reset();
+
+	io << true;
+	io << false;
+	TEST_ASSERT_SENT_BYTES(0xaa, 0x20, 1, 0xaa, 0x20, 0);
+	ioDevice.reset();
+
+	uint8_t bytes[] = {0xab, 0x54, 0x67, 0x13, 0x37, 0xbe, 0xef};
+	io << smup::array(sizeof(bytes)) << bytes;
+	TEST_ASSERT_SENT_BYTES(0xaa, 0x29, 7, 0, 0xab, 0x54, 0x67, 0x13, 0x37, 0xbe, 0xef);
+	ioDevice.reset();
 }

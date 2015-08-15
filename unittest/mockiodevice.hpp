@@ -52,8 +52,8 @@ public:
 	}
 
 	void reset() {
-		return this->txBufferCount = 0;
-		return this->rxBufferCount = 0;
+		this->txBufferCount = 0;
+		this->rxBufferCount = 0;
 	}
 
 	virtual void
