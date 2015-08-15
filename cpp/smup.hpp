@@ -26,34 +26,15 @@
 #include <xpcc/math/utils/endianness.hpp>
 #include <xpcc/utils/arithmetic_traits.hpp>
 
+#include "smup_constants.hpp"
+
 namespace smup {
 
 struct ArrayLength {
 	uint16_t length;	///< number of values, NOT bytes
 };
 
-class Stream {
-
-	static constexpr uint8_t Flag = 0xaa;
-	static constexpr uint8_t Escape = 0xaa;
-
-	enum class PacketType : uint8_t {
-		Ping          = 0x0,
-		GetName       = 0x1,
-		UserData      = 0x2,
-		UserDataArray = 0x3,
-	};
-
-	enum class DataType : uint8_t {
-		Bool        = 0x0,
-		Int32       = 0x2,
-		UInt32      = 0x3,
-		AsciiString = 0x8,
-		Bytes       = 0x9,
-	};
-
-	static constexpr uint8_t True = 1;
-	static constexpr uint8_t False = 0;
+class Stream : private Constants {
 
 public:
 	enum class Error {
