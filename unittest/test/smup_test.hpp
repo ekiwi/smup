@@ -1,5 +1,5 @@
 /*
- * awesome_test.cpp
+ * smup_test.hpp
  *
  * Copyright (c) 2015, Kevin Laeufer <kevin.laeufer@rwth-aachen.de>
  *
@@ -19,10 +19,9 @@
  * along with smup.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "awesome_test.hpp"
+#include <unittest/testsuite.hpp>
 
-void
-AwesomeTest::testSomething()
-{
-	TEST_ASSERT_EQUALS(2 + 2, 4);
-}
+class SmupTest : public unittest::TestSuite {
+public:
+	void testBasicOutput();
+};
